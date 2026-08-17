@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgentCrafter Dashboard</title>
+    <!-- Outfit & Fira Code Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- PrismJS Dark Theme -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <!-- Main Style Sheet -->
+    <link rel="stylesheet" href="/static/style.css?v=3">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar for History & Info -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="brand">
+                    <i data-lucide="cpu" class="brand-icon"></i>
+                    <span>AgentCrafter</span>
+                </div>
+            </div>
+            <div class="sidebar-content">
+                <div class="section-title">Session Runs</div>
+                <ul class="history-list" id="history-list">
+                    <li class="empty-history">No runs yet</li>
+                </ul>
+            </div>
+            <div class="sidebar-footer">
+                <div class="status-footer">
+                    <i data-lucide="radio" class="pulse-icon"></i>
+                    <span>System Online</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Dashboard View -->
+        <main class="main-content">
+            <!-- Top Controls Header -->
+            <header class="main-header">
+                <div class="header-title">
+                    <h1>Workspace Console</h1>
+                    <p>Orchestrate, monitor, and run autonomous agent codecrafts.</p>
+                </div>
+                <div class="header-actions" style="display: flex; align-items: center; gap: 16px;">
+                    <button class="btn btn-primary" id="new-session-btn">
+                        <i data-lucide="plus"></i>
+                        <span>New Session</span>
+                    </button>
+                    <button class="btn btn-outline" id="view-pipeline-btn">
+                        <i data-lucide="git-branch"></i>
+                        <span>Pipeline Flow</span>
+                    </button>
+                    <div class="active-run-badge hidden" id="active-run-badge">
+                        <span class="badge-dot"></span>
+                        <span id="active-run-id-text">RUN-ID: None</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Grid -->
+            <div class="dashboard-grid">
+                <!-- Row 1: Agent Pipeline Monitor & Prompt Input -->
+                <div class="card prompt-card col-span-2">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i data-lucide="sparkles"></i>
+                            <span>Craft New Project</span>
+                        </div>
+                    </div>
+                    <div class="prompt-input-group">
+                        <textarea id="prompt-input" placeholder="Describe the application you want to build in plain English (e.g. 'Build a modern Pomodoro timer app in HTML, CSS, and Javascript')..."></textarea>
+                        <button class="btn btn-primary" id="start-btn">
+                            <i data-lucide="play" id="btn-icon"></i>
+                            <span id="btn-text">Generate Project</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Row 2 Column 1: Pipeline & Architecture Tasks -->
+                <div class="card pipeline-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i data-lucide="clipboard-list"></i>
+                            <span>Project Plan & Tasks</span>
+                        </div>
+                    </div>
+
+                    <!-- Plan Review Section (shown when awaiting approval) -->
+                    <div class="plan-review-section hidden" id="plan-review-section">
+                        <div class="section-divider"></div>
+                        <div class="tasks-checklist-header">Review & Edit App Plan</div>
+                        <div class="plan-edit-form">
+                            <div class="form-group">
+                                <label class="form-label">App Name</label>
+                                <input type="text" id="edit-app-name" class="form-input" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Description</label>
+                                <textarea id="edit-app-desc" class="form-input" rows="2"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Tech Stack</label>
+                                <input type="text" id="edit-app-tech" class="form-input" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Target Files (Comma-separated)</label>
+                                <input type="text" id="edit-app-files" class="form-input" placeholder="e.g. main.py, utils.py" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Features (One per line)</label>
+                                <textarea id="edit-app-features" class="form-input" rows="3" placeholder="e.g. User login&#10;Database sync"></textarea>
+                            </div>
+                            <button class="btn btn-primary btn-sm" id="approve-plan-btn" style="width: 100%; margin-top: 10px;">
+                                <i data-lucide="check"></i>
+                                <span>Approve Plan & Craft Code</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Task Plan Section (populates after Architect finishes) -->
+                    <div class="architect-plan-section hidden" id="architect-plan-section">
+                        <div class="plan-meta">
+                            <h4 id="plan-app-name">App Name</h4>
+                            <p id="plan-app-desc">Description</p>
+                            <div class="tech-stack-tag" id="plan-app-tech">Python</div>
+                        </div>
+                        <div class="section-divider"></div>
+                        <div class="tasks-checklist-header">Implementation Checklist</div>
+                        <div class="tasks-checklist" id="tasks-checklist">
+                            <!-- Checklist items inject here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 2 Column 2: Log Console Terminal -->
+                <div class="card console-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i data-lucide="terminal"></i>
+                            <span>Agent Execution Stream</span>
+                        </div>
+                        <div class="card-actions">
+                            <label class="toggle-container">
+                                <input type="checkbox" id="autoscroll-chk" checked>
+                                <span>Auto-scroll</span>
+                            </label>
+                            <button class="btn btn-sm btn-outline" id="clear-console-btn">Clear</button>
+                        </div>
+                    </div>
+                    <div class="console-body" id="console-stream">
+                        <div class="console-line system-line">[SYSTEM] Waiting for instruction...</div>
+                    </div>
+                </div>
+
+                <!-- Row 3 Column 1: Workspace Files Explorer -->
+                <div class="card explorer-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i data-lucide="folder-git-2"></i>
+                            <span>Project Files</span>
+                        </div>
+                        <button class="btn btn-sm btn-icon" id="refresh-files-btn" title="Refresh files list">
+                            <i data-lucide="refresh-cw"></i>
+                        </button>
+                    </div>
+                    <div class="explorer-body">
+                        <ul class="file-tree" id="file-tree">
+                            <li class="empty-tree">No project files generated yet.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Row 3 Column 2: Live Code View / Editor -->
+                <div class="card viewer-card col-span-1">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i data-lucide="file-code"></i>
+                            <span id="active-file-title">File Viewer</span>
+                        </div>
+                    </div>
+                    <div class="viewer-body">
+                        <pre class="code-pre"><code class="language-javascript" id="code-viewer">// Select a file from the explorer to view its contents</code></pre>
+                    </div>
+                </div>
+
+                <!-- Row 4: Custom Project Command Runner -->
+                <div class="card command-card col-span-2">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i data-lucide="play-square"></i>
+                            <span>Execute generated project commands (e.g. run dev server, compile, tests)</span>
+                        </div>
+                    </div>
+                    <div class="command-runner-wrapper">
+                        <div class="command-input-group">
+                            <span class="cmd-prompt">PROJECT_ROOT&gt;</span>
+                            <input type="text" id="command-input" placeholder="npm install && npm run dev (or) python main.py" />
+                            <button class="btn btn-primary" id="run-cmd-btn">
+                                <i data-lucide="play"></i>
+                                <span>Execute</span>
+                            </button>
+                            <button class="btn btn-danger hidden" id="kill-cmd-btn">
+                                <i data-lucide="square"></i>
+                                <span>Stop</span>
+                            </button>
+                        </div>
+                        <div class="command-console" id="command-console">
+                            <div class="cmd-line system-line">Terminal ready. Run commands to execute files in generated_project folder.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Pipeline Flow Modal -->
+    <div class="modal hidden" id="pipeline-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i data-lucide="git-commit"></i> Agent Pipeline Monitor</h2>
+                <button class="btn-close" id="close-pipeline-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="pipeline-flow">
+                    <div class="pipeline-node" id="node-planner">
+                        <div class="node-icon"><i data-lucide="map"></i></div>
+                        <div class="node-details">
+                            <h3>Planner Agent</h3>
+                            <p>Creates structured application plan</p>
+                        </div>
+                        <div class="node-status status-idle" id="status-planner">Idle</div>
+                    </div>
+                    <div class="pipeline-arrow"></div>
+                    <div class="pipeline-node" id="node-architect">
+                        <div class="node-icon"><i data-lucide="layers"></i></div>
+                        <div class="node-details">
+                            <h3>Architect Agent</h3>
+                            <p>Maps files and engineering tasks</p>
+                        </div>
+                        <div class="node-status status-idle" id="status-architect">Idle</div>
+                    </div>
+                    <div class="pipeline-arrow"></div>
+                    <div class="pipeline-node" id="node-coder">
+                        <div class="node-icon"><i data-lucide="code-2"></i></div>
+                        <div class="node-details">
+                            <h3>Coder Agent</h3>
+                            <p>Implements files & runs verification</p>
+                        </div>
+                        <div class="node-status status-idle" id="status-coder">Idle</div>
+                    </div>
+                    <div class="pipeline-arrow"></div>
+                    <div class="pipeline-node" id="node-reviewer">
+                        <div class="node-icon"><i data-lucide="clipboard-check"></i></div>
+                        <div class="node-details">
+                            <h3>QA Reviewer</h3>
+                            <p>Verifies code & runs checks</p>
+                        </div>
+                        <div class="node-status status-idle" id="status-reviewer">Idle</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- PrismJS Main + Core Subcomponents for Language Syntax Highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+    <!-- Client JavaScript App -->
+    <script src="/static/app.js?v=3"></script>
+</body>
+</html>
