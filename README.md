@@ -6,6 +6,8 @@ Rather than behaving like a traditional code generator that spits out isolated s
 
 The system follows an **agentic software development lifecycle**, where each AI agent owns a specific engineering role — from planning and architecture to implementation and quality assurance. It also introduces **Human-in-the-Loop (HITL)** approval, letting developers review and adjust the generated project plan before any code is written, so you retain full control over the final outcome.
 
+> **Authored by Shashwat Tripathi, IIT Bombay**
+
 ## 🧠 How It Works
 
 The system is organized as a pipeline of cooperating agents, each handling a distinct stage of the development process:
