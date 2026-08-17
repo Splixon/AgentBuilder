@@ -1,6 +1,6 @@
-# 🤖 AgentCrafter
+# 🤖 AgentBuilder
 
-**AgentCrafter** is an autonomous AI software engineer built with **LangGraph** that turns natural language requirements into complete, production-ready applications.
+**AgentBuilder** is an autonomous AI software engineer built with **LangGraph** that turns natural language requirements into complete, production-ready applications.
 
 Rather than behaving like a traditional code generator that spits out isolated snippets, AgentCrafter coordinates a team of specialized AI agents that work together through a structured software development workflow. Starting from a simple prompt, it analyzes requirements, forms a development strategy, designs the project architecture, generates source code, verifies the implementation, and iteratively resolves issues until a working codebase is delivered.
 
